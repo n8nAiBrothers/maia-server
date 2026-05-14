@@ -1,0 +1,44 @@
+{
+  "name": "🛡️ NOC: Monitor de Falhas Globais",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "error-trigger-id",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "echo \"\\n### 🚨 Falha Critica em Workflow ({{$now}})\\n- **Workflow:** {{$json.execution.workflowName}} (ID: {{$json.execution.workflowId}})\\n- **No que Falhou:** {{$json.execution.error.node.name}}\\n- **Erro Original:** {{$json.execution.error.message}}\\n---\" >> \"/Users/fsantoro/Desktop/Maia server/Knowledge_Base/03_Diarios_e_Logs/Erros_n8n.md\""
+      },
+      "id": "execute-command-id",
+      "name": "Registrar no Obsidian",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Registrar no Obsidian",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

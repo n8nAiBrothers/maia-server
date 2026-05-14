@@ -1,0 +1,309 @@
+{
+  "name": "🧠 Roteador Mestre (Groq + Gemma)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Analise a mensagem abaixo e decida quem deve responder. Responda APENAS com a palavra LOCAL ou com a palavra NUVEM.\n\nRegras de Decisão:\n1. Se o usuário pedir para 'salvar', 'gravar', 'obsidian', criar um plano complexo ou manipular arquivos, responda: NUVEM.\n2. Se for um bate-papo normal, um 'oi', ou pergunta simples, responda: LOCAL.\n\nMensagem do Usuário: \"{{ $json.message.text }}\""
+      },
+      "id": "decisor",
+      "name": "Classificador de Rota",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3-8b-8192"
+      },
+      "id": "groq-router-model",
+      "name": "Groq Llama 3 8B (Rápido)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        200,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "1",
+                    "leftValue": "={{ $json.text }}",
+                    "rightValue": "LOCAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Gemma Local"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "2",
+                    "leftValue": "={{ $json.text }}",
+                    "rightValue": "NUVEM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Groq Mestre"
+            }
+          ]
+        },
+        "fallbackOutput": 1
+      },
+      "id": "switch",
+      "name": "Direcionador",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}"
+      },
+      "id": "chain-local",
+      "name": "Cérebro Local (Gemma)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1,
+      "position": [
+        800,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gemma4:26b",
+        "options": {
+          "baseUrl": "http://127.0.0.1:11434"
+        }
+      },
+      "id": "ollama-model",
+      "name": "Ollama Gemma",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        750,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "Você é o Agente Mestre do Servidor Maia.\nUse OBRIGATORIAMENTE a sua ferramenta 'Salvar_No_Obsidian' para gerar arquivos físicos se o usuário pedir para criar planos, códigos ou salvar algo.\nResponda em português de forma clara, e avise o usuário que o arquivo foi salvo no Obsidian."
+        }
+      },
+      "id": "agent-mestre",
+      "name": "Agente Mestre (Groq 70B)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        800,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3-70b-8192"
+      },
+      "id": "groq-agent-model",
+      "name": "Groq Llama 3 70B (Avançado)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        650,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Salvar_No_Obsidian",
+        "description": "Use esta ferramenta sempre que quiser salvar conhecimento ou textos no Obsidian. Exige: 'filename' (nome sem extensão) e 'content' (texto a salvar).",
+        "workflowId": "hCvKGqv1EJ6JY7C9"
+      },
+      "id": "tool-obsidian",
+      "name": "Tool: Salvar Obsidian",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        950,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ ($json.text || $json.output).replace(/[*_`]/g, '') }}",
+        "additionalFields": {}
+      },
+      "id": "telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1150,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Classificador de Rota",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Llama 3 8B (Rápido)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classificador de Rota",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classificador de Rota": {
+      "main": [
+        [
+          {
+            "node": "Direcionador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Direcionador": {
+      "main": [
+        [
+          {
+            "node": "Cérebro Local (Gemma)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente Mestre (Groq 70B)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cérebro Local (Gemma)": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Gemma": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cérebro Local (Gemma)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Mestre (Groq 70B)": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Llama 3 70B (Avançado)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Mestre (Groq 70B)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Salvar Obsidian": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Mestre (Groq 70B)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

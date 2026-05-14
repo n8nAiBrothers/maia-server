@@ -1,0 +1,112 @@
+{
+  "name": "Integração CRM Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "prompt": "O usuário enviou a mensagem abaixo.\nEle quer criar uma nova tarefa no CRM.\nSua resposta DEVE ser um objeto JSON válido (sem markdown), com os seguintes campos:\n- title (título curto da tarefa)\n- description (descrição detalhada se houver)\n- priority (apenas 'High', 'Medium', ou 'Low')\n- assignee (nome da pessoa responsável, se dita)\n- listId (id da coluna. Escolha uma das opções a seguir baseado no contexto:\n  * projetos_prerequisitos\n  * primeiros_passos\n  * segundos_passos\n  * execucao\n)\n\nMensagem do usuário: \"{{ $json.message.text }}\"",
+        "text": "O usuário enviou a mensagem abaixo.\nEle quer criar uma nova tarefa no CRM.\nSua resposta DEVE ser um objeto JSON válido (sem markdown), com os seguintes campos:\n- title (título curto da tarefa)\n- description (descrição detalhada se houver)\n- priority (apenas 'High', 'Medium', ou 'Low')\n- assignee (nome da pessoa responsável, se dita)\n- listId (id da coluna. Escolha uma das opções a seguir baseado no contexto:\n  * projetos_prerequisitos\n  * primeiros_passos\n  * segundos_passos\n  * execucao\n)\n\nMensagem do usuário: \"{{ $json.message.text }}\""
+      },
+      "id": "llm-parser",
+      "name": "LLM JSON Parser",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "model": "llama3-70b-8192"
+      },
+      "id": "groq-model",
+      "name": "Groq Llama 3 70B",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [400, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/tasks",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "http-request",
+      "name": "Enviar para CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Tarefa '{{ $('LLM JSON Parser').item.json.text.title }}' criada com sucesso no CRM!",
+        "additionalFields": {}
+      },
+      "id": "telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [950, 300]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "LLM JSON Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "Enviar para CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar para CRM": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Llama 3 70B": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM JSON Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

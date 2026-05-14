@@ -1,0 +1,176 @@
+{
+  "name": "\ud83e\udde0 Agente Mestre CRM (Claude/Tools)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "telegram-trigger-id",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "Voc\u00ea \u00e9 o Agente Mestre de Intelig\u00eancia Artificial do Servidor Maia. O usu\u00e1rio conversa com voc\u00ea pelo Telegram.\nQuando o usu\u00e1rio pedir para criar um plano, um c\u00f3digo, ou guardar uma informa\u00e7\u00e3o importante, voc\u00ea deve OBRIGATORIAMENTE usar a ferramenta 'Salvar_No_Obsidian' para gerar o arquivo f\u00edsico em segundo plano.\nSeja extremamente inteligente, conciso e sempre avise o usu\u00e1rio assim que o arquivo for salvo com sucesso na m\u00e1quina dele."
+        }
+      },
+      "id": "ai-agent-id",
+      "name": "AI Agent Mestre",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "claude-model-id",
+      "name": "Anthropic Claude",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1,
+      "position": [
+        350,
+        500
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "memory-id",
+      "name": "Mem\u00f3ria Buffer",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1,
+      "position": [
+        500,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Salvar_No_Obsidian",
+        "description": "Use esta ferramenta sempre que quiser salvar qualquer conhecimento importante, plano, c\u00f3digo ou texto no banco de dados Obsidian do usu\u00e1rio. Ela exige obrigatoriamente duas propriedades: 'filename' (o nome que ser\u00e1 dado ao arquivo, apenas letras, sem extens\u00f5es ou espa\u00e7os) e 'content' (o texto completo em Markdown a ser salvo).",
+        "workflowId": "hCvKGqv1EJ6JY7C9"
+      },
+      "id": "tool-workflow-id",
+      "name": "Ferramenta: Salvar Arquivo",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        650,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output.replace(/[*_`]/g, '') }}",
+        "additionalFields": {}
+      },
+      "id": "telegram-reply-id",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Consultar_CRM",
+        "description": "Use esta ferramenta obrigatoria sempre que o usuario perguntar sobre o status das tarefas, CRM ou pendencias. Retorna o total de tarefas atrasadas e em andamento.",
+        "workflowId": "Wk9XpQy3BvC_CRM"
+      },
+      "id": "tool-crm-id",
+      "name": "Ferramenta: Consultar CRM",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        800,
+        500
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Mestre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Mestre": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Claude": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Mestre",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mem\u00f3ria Buffer": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Mestre",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ferramenta: Salvar Arquivo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Mestre",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ferramenta: Consultar CRM": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Mestre",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "AGENTE_MESTRE_CLAUDE_ID"
+}

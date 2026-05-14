@@ -1,0 +1,246 @@
+{
+  "name": "🧠 Roteador Mestre CRM (Gemma + Gemini)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message.text }}",
+        "routes": {
+          "route": [
+            {
+              "description": "Consultas simples, bate-papo comum, perguntas rápidas ou pedidos de rascunhos em que o usuário não solicita ferramentas, salvar arquivos ou banco de dados.",
+              "name": "Rota Local (Gemma 26b)"
+            },
+            {
+              "description": "Tarefas complexas, análise profunda, pesquisa online, ou pedidos onde o usuário expressamente pede para 'Salvar no Obsidian' ou criar/guardar arquivos.",
+              "name": "Rota Mestre (Gemini com Tools)"
+            }
+          ]
+        }
+      },
+      "id": "ai-router",
+      "name": "AI Router (O Roteador)",
+      "type": "@n8n/n8n-nodes-langchain.router",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "models/gemini-1.5-flash"
+      },
+      "id": "gemini-router-model",
+      "name": "Gemini Flash (Rápido)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        200,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}"
+      },
+      "id": "chain-local",
+      "name": "Cérebro Local (Gemma)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1,
+      "position": [
+        600,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gemma4:26b",
+        "options": {
+          "baseUrl": "http://127.0.0.1:11434"
+        }
+      },
+      "id": "ollama-model",
+      "name": "Ollama Gemma",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        550,
+        350
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "Você é o Agente Mestre do Servidor Maia.\nUse OBRIGATORIAMENTE a sua ferramenta 'Salvar_No_Obsidian' se o usuário pedir para criar ou guardar um plano/código/documento.\nResponda em português, de forma concisa e sempre avise se o arquivo foi salvo."
+        }
+      },
+      "id": "agent-mestre",
+      "name": "Agente Mestre (Gemini Pro)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        600,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "model": "models/gemini-1.5-pro"
+      },
+      "id": "gemini-agent-model",
+      "name": "Gemini Pro (Avançado)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        450,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Salvar_No_Obsidian",
+        "description": "Use esta ferramenta sempre que precisar salvar conhecimento, planos, código ou textos. Exige 2 propriedades em formato JSON: 'filename' (nome do arquivo curto, sem extensão) e 'content' (texto completo a salvar).",
+        "workflowId": "hCvKGqv1EJ6JY7C9"
+      },
+      "id": "tool-obsidian",
+      "name": "Tool: Salvar Obsidian",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        700,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ ($json.text || $json.output).replace(/[*_`]/g, '') }}",
+        "additionalFields": {}
+      },
+      "id": "telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        950,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Router (O Roteador)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Router (O Roteador)": {
+      "main": [
+        [
+          {
+            "node": "Cérebro Local (Gemma)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente Mestre (Gemini Pro)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Flash (Rápido)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Router (O Roteador)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cérebro Local (Gemma)": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Gemma": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cérebro Local (Gemma)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Mestre (Gemini Pro)": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Pro (Avançado)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Mestre (Gemini Pro)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool: Salvar Obsidian": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Mestre (Gemini Pro)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}
