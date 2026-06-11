@@ -1,0 +1,37 @@
+{
+  "categories": {
+    "GSD Workflow": [
+      "gsd-new-project", "gsd-import", "gsd-phase", "gsd-resume-work", "gsd-workspace", 
+      "gsd-quick", "gsd-help", "gsd-review", "gsd-settings", "gsd-config", 
+      "gsd-verify-work", "gsd-pause-work", "gsd-execute-phase", "gsd-progress", 
+      "gsd-code-review", "gsd-discuss-phase", "gsd-update", "gsd-surface", "gsd-plan-phase"
+    ],
+    "Superpowers": [
+      "using-superpowers", "systematic-debugging", "dispatching-parallel-agents", 
+      "test-driven-development", "executing-plans", "using-git-worktrees", 
+      "subagent-driven-development", "requesting-code-review", "writing-plans", 
+      "verification-before-completion", "brainstorming", "writing-skills", 
+      "finishing-a-development-branch", "receiving-code-review"
+    ],
+    "Vercel": [
+      "bootstrap", "deploy", "env", "env-vars", "marketplace", "status", "knowledge-update", 
+      "vercel-agent", "react-best-practices", "ai-sdk", "vercel-firewall", "turbopack", 
+      "next-forge", "verification", "vercel-functions", "shadcn", "vercel-storage", 
+      "chat-sdk", "next-cache-components", "deployments-cicd", "routing-middleware", 
+      "next-upgrade", "vercel-sandbox", "workflow", "nextjs", "auth", "runtime-cache", 
+      "vercel-cli", "ai-gateway"
+    ],
+    "Cloud SQL PostgreSQL": [
+      "cloud-sql-postgres-view-config", "cloud-sql-postgres-lifecycle", 
+      "cloud-sql-postgres-vectorassist", "cloud-sql-postgres-data", 
+      "cloud-sql-postgres-monitor", "cloud-sql-postgres-admin", 
+      "cloud-sql-postgres-health", "cloud-sql-postgres-replication"
+    ],
+    "Other / Tooling": [
+      "code-review", "claude-md-management", "revise-claude-md", "claude-md-improver", 
+      "feature-dev", "frontend-design", "skill-creator", "update-config", 
+      "keybindings-help", "verify", "simplify", "fewer-permission-prompts", 
+      "loop", "schedule", "claude-api", "run", "init", "review", "security-review"
+    ]
+  }
+}

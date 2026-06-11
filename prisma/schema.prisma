@@ -1,0 +1,362 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// MODELOS EXISTENTES (Board, List, Card)
+// ==========================================
+
+model Board {
+  id        String   @id @default(cuid())
+  title     String
+  lists     List[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model List {
+  id        String   @id @default(cuid())
+  title     String
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards     Card[]
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  priority    String    @default("Medium") // High, Medium, Low
+  assignee    String?
+  dueDate     DateTime?
+  status      String    @default("Standby") // Standby, Em Andamento, Finalizado
+  history     Json?     // Will store array of { date, text }
+  
+  listId      String
+  list        List      @relation(fields: [listId], references: [id])
+  
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  subtasks    Subtask[]
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  title     String
+  isDone    Boolean  @default(false)
+  cardId    String
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// MEMBRO (Expandido para Plataforma Maia)
+// ==========================================
+
+model Member {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  role      String   @default("Member")
+
+  // Campos expandidos
+  avatar            String?
+  roles             String[]  @default(["developer"])
+  isActive          Boolean   @default(true)
+  tier              String    @default("standard") // standard, pro, enterprise
+  canViewFinancials Boolean   @default(false)
+  accessHash        String?   @unique   // Token de acesso único para onboarding/sessão
+  telegramHandle    String?   // Para automações via bot N8N/Telegram
+  telegramChatId    String?   @unique   // ID numérico gerado pelo bot do Telegram após primeira interação
+
+  // Relacionamentos
+  deliverables   Deliverable[]
+  quota          MemberQuota?
+  contributions  MemberContribution[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// DELIVERABLE — Tudo que cada pessoa cria
+// (agentes, apps, sites, automações, bots)
+// ==========================================
+
+model Deliverable {
+  id            String    @id @default(cuid())
+
+  // Dono
+  owner         Member    @relation(fields: [ownerId], references: [id])
+  ownerId       String
+
+  // Classificação
+  category      String    // 'agent', 'app', 'website', 'webapp', 'automation', 'api', 'bot'
+  name          String
+  description   String?
+
+  // Detalhes de agente (se category = 'agent' ou 'bot')
+  agentType     String?   // 'antigravity', 'claude-code', 'n8n-workflow', 'ollama-direct', 'gemini-cli'
+  platform      String?   // 'antigravity-ide', 'vscode', 'terminal', 'n8n', 'telegram'
+  defaultModel  String?   // 'gemma4:26b', 'claude-opus-4', 'gemini-2.5-pro'
+  defaultLlm    String    @default("auto") // 'auto', 'local', 'cloud'
+
+  // Detalhes de app/site (se category = 'app', 'website', 'webapp')
+  repoUrl       String?
+  deployUrl     String?
+  techStack     String[]
+
+  // Projeto associado
+  projectName   String?   // 'SSASSA', 'CRM', 'Chatblot', 'Maia Companhia'
+
+  // Config extra flexível
+  configJson    Json?
+
+  // Status
+  status        String    @default("active") // active, paused, archived, in-development
+  lastActiveAt  DateTime?
+
+  // Métricas acumuladas (cache para queries rápidas)
+  totalTokensUsed    BigInt  @default(0)
+  totalSessions      Int     @default(0)
+  totalCostBrl       Float   @default(0)
+
+  // Relacionamentos
+  usageLogs     TokenUsageLog[]
+  schedules     AgentSchedule[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([category])
+  @@index([status])
+  @@index([projectName])
+}
+
+// ==========================================
+// ASSINATURAS LLM
+// ==========================================
+
+model LlmSubscription {
+  id           String   @id @default(cuid())
+  provider     String   // 'google', 'anthropic', 'ollama'
+  planName     String   // 'Google AI Pro 5TB', 'Claude Pro', etc.
+  apiKeyRef    String?  // Referência ao vault (NÃO a key real)
+  tokenLimit   BigInt?  // Limite mensal (null = ilimitado)
+  tokensUsed   BigInt   @default(0)
+  renewalDay   Int?     // Dia do mês (18, 21, etc.)
+  monthlyCost  Float?   // Custo em BRL
+  isLocal      Boolean  @default(false)
+  status       String   @default("active") // active, expired, suspended
+
+  usageLogs    TokenUsageLog[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ==========================================
+// LOG DE CONSUMO DE TOKENS
+// ==========================================
+
+model TokenUsageLog {
+  id              Int       @id @default(autoincrement())
+
+  // Qual deliverable consumiu
+  deliverable     Deliverable     @relation(fields: [deliverableId], references: [id])
+  deliverableId   String
+
+  // Qual assinatura LLM foi usada
+  subscription    LlmSubscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId  String
+
+  // Detalhes do uso
+  model            String  // 'gemma4:26b', 'claude-opus-4', 'gemini-2.5-pro'
+  tokensInput      Int     @default(0)
+  tokensOutput     Int     @default(0)
+  totalTokens      Int     @default(0) // input + output (pré-calculado)
+  estimatedCostBrl Float   @default(0) // Custo estimado em BRL
+
+  // Contexto
+  taskSummary     String?  // "Revisão de código do componente X"
+  projectName     String?
+  sessionId       String?  // ID da sessão (agrupa logs de uma conversa)
+  usageType       String   @default("chat") // chat, code-gen, analysis, automation, embedding, build
+
+  createdAt       DateTime @default(now())
+
+  @@index([deliverableId])
+  @@index([createdAt])
+  @@index([subscriptionId])
+}
+
+// ==========================================
+// QUOTA POR MEMBRO (Limites de tokens)
+// ==========================================
+
+model MemberQuota {
+  id                  String   @id @default(cuid())
+
+  member              Member   @relation(fields: [memberId], references: [id])
+  memberId            String   @unique
+
+  // Limites mensais
+  monthlyTokenLimit   BigInt   @default(500000)  // 500k tokens padrão
+  monthlyTokensUsed   BigInt   @default(0)
+  monthlyCostLimit    Float?                      // Limite de custo em BRL
+  monthlyCostUsed     Float    @default(0)
+
+  // Controle do ciclo
+  cycleStartDate      DateTime @default(now())
+  cycleEndDate        DateTime
+
+  // Alertas
+  alertAt50           Boolean  @default(false)
+  alertAt80           Boolean  @default(false)
+  alertAt100          Boolean  @default(false)
+
+  // Política de excedente
+  overagePolicy       String   @default("warn") // warn, throttle, block, bill
+  overageRateBrl      Float?                     // Custo por 1k tokens excedentes
+
+  tier                String   @default("standard")
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ==========================================
+// CONTRIBUIÇÕES FINANCEIRAS DO TIME
+// ==========================================
+
+model MemberContribution {
+  id          String   @id @default(cuid())
+
+  member      Member   @relation(fields: [memberId], references: [id])
+  memberId    String
+
+  amount      Float              // R$ 200.00
+  currency    String   @default("BRL")
+
+  // Período de referência
+  referenceMonth  String         // "2026-06", "2026-07", etc.
+
+  // Status do pagamento
+  status      String   @default("pending") // pending, paid, late, waived
+  paidAt      DateTime?
+
+  // Método
+  paymentMethod String?          // 'pix', 'transferencia', 'boleto'
+  receiptUrl    String?          // Caminho do comprovante anexado
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([memberId, referenceMonth]) // Um pagamento por mês por pessoa
+  @@index([referenceMonth])
+  @@index([status])
+}
+
+// ==========================================
+// DESPESAS DA PLATAFORMA
+// ==========================================
+
+model PlatformExpense {
+  id            String   @id @default(cuid())
+
+  category      String   // 'llm_subscription', 'hosting', 'domain', 'infrastructure', 'storage', 'other'
+  name          String   // 'Google AI Pro 5TB', 'Cloudflare', 'Domínio waia88.com'
+  provider      String   // 'google', 'anthropic', 'cloudflare', 'vercel', 'namecheap'
+
+  // Financeiro
+  amount        Float    // Valor em BRL
+  currency      String   @default("BRL")
+  billingCycle  String   @default("monthly") // monthly, yearly, one-time
+  renewalDay    Int?     // Dia do mês (18, 21, etc.)
+
+  // Período de referência
+  referenceMonth String?  // "2026-06"
+
+  // Controle de Contratos
+  contractType    String   @default("continuous") // 'continuous', 'fixed_term'
+  startDate       DateTime @default(now())        // Início da contabilização
+  contractEndDate DateTime?                       // Vencimento do contrato
+  cancelDeadline  DateTime?                       // Prazo limite para cancelar/renovar sem multa
+
+  // Status
+  status        String   @default("active") // active, cancelled, paused
+  isPaid        Boolean  @default(false)
+  paidAt        DateTime?
+
+  // Link com assinatura LLM (se aplicável)
+  subscriptionId String?
+
+  notes         String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([referenceMonth])
+}
+
+// ==========================================
+// AGENDAMENTO DE TAREFAS DE AGENTES
+// ==========================================
+
+model AgentSchedule {
+  id              String       @id @default(cuid())
+
+  deliverable     Deliverable  @relation(fields: [deliverableId], references: [id])
+  deliverableId   String
+
+  title           String
+  description     String?
+  cronExpression  String?      // '0 9 * * 1-5' → 9h dias úteis
+  scheduledAt     DateTime?    // Para tarefas one-shot
+  preferredLlm    String       @default("auto")
+  priority        String       @default("normal") // low, normal, high, critical
+  status          String       @default("pending") // pending, running, completed, failed, paused
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  estimatedTokens Int?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+// ==========================================
+// PROJETOS
+// ==========================================
+
+model Project {
+  id          String   @id @default(cuid())
+  boardId     String?  // Link ao Board do CRM Kanban
+  name        String
+  description String?
+  type        String   @default("app") // app, site, automation, initiative
+  repoUrl     String?
+  deployUrl   String?
+  techStack   String[]
+  ownerId     String?  // memberId do responsável
+  progress    Int      @default(0) // 0-100%
+  status      String   @default("active")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
