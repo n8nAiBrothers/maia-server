@@ -1,0 +1,69 @@
+{
+  "id": "Wk9XpQy3BvC_CRM",
+  "name": "Skill_Extrator_Postgres_CRM",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f5b211a5-8c76-47b2-85a2-3f8d38e23f03",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [ 250, 300 ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  COUNT(CASE WHEN \"dueDate\" < NOW() AND status != 'Finalizado' THEN 1 END) as atrasadas,\n  COUNT(CASE WHEN status = 'Em Andamento' THEN 1 END) as andamento,\n  COUNT(CASE WHEN status = 'Aguardando Revisão' THEN 1 END) as revisao\nFROM \"Card\";"
+      },
+      "id": "a9d7b420-7b24-42b1-b934-8c83a1b32d2c",
+      "name": "Consultar CRM (Postgres)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.2,
+      "position": [ 450, 300 ],
+      "credentials": {
+        "postgres": {
+          "id": "SUA_CREDENTIAL_AQUI",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst atrasadas = data.atrasadas || 0;\nconst andamento = data.andamento || 0;\nconst revisao = data.revisao || 0;\n\nlet relatorio = `📊 *Resumo do CRM Maia*\\n`;\nrelatorio += `🚨 Tarefas Atrasadas: ${atrasadas}\\n`;\nrelatorio += `🔥 Em Andamento: ${andamento}\\n`;\nrelatorio += `👀 Aguardando Revisão: ${revisao}\\n\\n`;\n\nif(atrasadas > 0) {\n  relatorio += `_Atenção: A equipe precisa agir rápido nas tarefas atrasadas!_`;\n} else {\n  relatorio += `_Parabéns: Tudo em dia!_`;\n}\n\nreturn [{ json: { text: relatorio, toolResponse: relatorio } }];"
+      },
+      "id": "e2f1f4e1-2c1a-42c2-8f1b-3f2d2b5c4f2e",
+      "name": "Formatar Resposta (LLM)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 650, 300 ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Consultar CRM (Postgres)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar CRM (Postgres)": {
+      "main": [
+        [
+          {
+            "node": "Formatar Resposta (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

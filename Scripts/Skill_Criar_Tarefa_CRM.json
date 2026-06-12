@@ -1,0 +1,72 @@
+{
+  "name": "🛠️ Skill: Criar Tarefa no CRM",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/tasks",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{ $json.title }}\",\n  \"description\": \"{{ $json.description || '' }}\",\n  \"priority\": \"{{ $json.priority || 'Medium' }}\",\n  \"listId\": \"{{ $json.listId || 'primeiros_passos' }}\",\n  \"status\": \"Standby\"\n}",
+        "options": {}
+      },
+      "id": "http",
+      "name": "POST CRM API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 0]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "response",
+              "value": "=Tarefa '{{ $('POST CRM API').item.json.card.title }}' criada com sucesso!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [400, 0]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "POST CRM API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST CRM API": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}

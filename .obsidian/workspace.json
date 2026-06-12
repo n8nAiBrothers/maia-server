@@ -1,0 +1,229 @@
+{
+  "main": {
+    "id": "586480b2036a638b",
+    "type": "split",
+    "children": [
+      {
+        "id": "0a857ea9d12c92d6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2905f3a8176ee4cf",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c6b743302252615e",
+    "type": "split",
+    "children": [
+      {
+        "id": "38bc9caa90effd2d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0efc4a0e042e2ab8",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "2e4455dd8c7afd15",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "026f86265394fe3a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6772905611220ec2",
+    "type": "split",
+    "children": [
+      {
+        "id": "c3b38c9ca67a1557",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "91d31bb11db3d5ff",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "ac390ae36d10a6c3",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "453aa60b28fae446",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "d332cd937693442b",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "d695e7e8f24fbae4",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "2905f3a8176ee4cf",
+  "lastOpenFiles": [
+    "Knowledge_Base/02_Recursos/Padroes_de_Producao_e_Skills.md",
+    "Knowledge_Base/Workspace_Compartilhado_Agentes/pautas_e_reunioes/2026-05-14_Rascunho_Pausa_Reuniao_Magica.md",
+    "Knowledge_Base/Workspace_Compartilhado_Agentes/pautas_e_reunioes",
+    "Knowledge_Base/01_Projetos/Maia_Companhia_Hub.md",
+    "Knowledge_Base/01_Projetos/Chatblot_Hub.md",
+    "Knowledge_Base/Migração bancos de dados/db_telemarketing.dump",
+    "Knowledge_Base/Migração bancos de dados/Migração postgres.sql",
+    "Knowledge_Base/Migração bancos de dados/Migração Maia.sql",
+    "Knowledge_Base/Migração bancos de dados/task.md",
+    "Knowledge_Base/Migração bancos de dados/plano_servidor_ia.md",
+    "Knowledge_Base/Migração bancos de dados/instrucoes_migracao.md",
+    "Knowledge_Base/Migração bancos de dados/Migração Durablot.sql",
+    "Knowledge_Base/Migração bancos de dados/Migração SAC SS.sql",
+    "Knowledge_Base/Migração bancos de dados/Durablot.dump",
+    "Knowledge_Base/Migração bancos de dados",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/which/node_modules/isexe/dist/cjs/win32.js",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/which/node_modules/isexe/dist/cjs/options.js",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA_App/icon-512.png",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/javascript/connectExample.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/javascript/bindExample.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/javascript/associateExample.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/typescript/connectExample.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/typescript/bindExample.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/typescript/associateExample.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/examples/index.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/debug/node_modules/ms/license.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/@npmcli/map-workspaces/LICENSE.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/@npmcli/installed-package-contents/README.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/@npmcli/fs/LICENSE.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/@npmcli/config/README.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/@npmcli/arborist/README.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/@npmcli/arborist/LICENSE.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/wcwidth/docs/index.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/migratingFromV1.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/socks/docs/index.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/smart-buffer/docs/ROADMAP.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/qrcode-terminal/example/basic.png",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/node-gyp/gyp/README.md",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/node_modules/npm/node_modules/retry/equation.gif",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/Maia brother/avatar_maia_lovers.png",
+    "Knowledge_Base/Projetos/SSASSA/SSASSA/node-v20.11.1-win-x64/Maia brother/avatar_maia.png",
+    "Knowledge_Base/01_Projetos/Maia/Ai brothers super herois.png",
+    "Knowledge_Base/01_Projetos/Maia/Ai brothers star wars.png",
+    "Knowledge_Base/01_Projetos/Maia/Ai brothers corrida missao impossivel.png",
+    "Knowledge_Base/01_Projetos/Maia/Ai brothers corrida mercenários.png",
+    "Knowledge_Base/01_Projetos/Maia/Ai brothers corrida maluca.png",
+    "Untitled.canvas"
+  ]
+}
